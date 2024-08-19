@@ -16,12 +16,35 @@
     <div class="card" th:each="i:${items}"> <!-- 타임리프 반복문-->
         <img src="https://placehold.co/300">
         <div>
-            <h4 th:text="${i.title}">바지</h4>
+            <h3 th:text="${i.title}">바지</h3>
             <a th:href="@{'/detail/' + ${i.id}}">링크</a>
-            <p th:text="${i.price}">7억</p>
+            <p th:text="${i.price}+원">7억</p>
             <a th:href="@{'/edit/' + ${i.id}}">✏️</a>
+            <span th:onclick="fetch('/item?id=[[${i.id}]]', { method : 'DELETE' })
+                .then(r => r.text())
+                .then(() => {
+                    location.reload();
+                })
+            ">🗑️</span>
         </div>
     </div>
+
+
+
+<script>
+    document.querySelectorAll('.btn')[0].addEventListener('click', function(){
+        fetch('/test1', {//fetch 요청 (@RequestBody 애너테이션으로 받는다.)
+            method : 'POST',
+            headers : {
+                'Content-Type': 'application/json',
+            },
+            body : JSON.stringify({
+                name : 'kim'
+            })
+        })
+    })
+
+</script>
 
 </body>
 

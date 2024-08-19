@@ -1,5 +1,6 @@
 package com.apple.shop.item;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -57,5 +58,23 @@ public class ItemController {
         itemService.updateItem(id, title, price);
         return "redirect:/list";
     }
+
+    @DeleteMapping("/item")
+    ResponseEntity<String> DeleteItem(@RequestParam Long id) {
+        itemRepository.deleteById(id);
+        return ResponseEntity.status(200).body("삭제완료");
+    }
+
+    @PostMapping("/test1")
+    String test1(@RequestBody Long id) {
+        System.out.println(id);
+        return "redirect:/list";
+    }
+
+//    @GetMapping("/test1")
+//    String test1(@RequestParam String name) {
+//        System.out.println(name);
+//        return "redirect:/list";
+//    }
 }
 
