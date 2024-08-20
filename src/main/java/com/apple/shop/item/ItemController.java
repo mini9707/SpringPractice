@@ -1,5 +1,8 @@
 package com.apple.shop.item;
+import com.apple.shop.Coment.CommentRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -12,6 +15,8 @@ import java.util.*;
 public class ItemController {
     private final ItemService itemService;
     private final ItemRepository itemRepository;
+    private final S3Service s3Service;
+    private final CommentRepository commentRepository;
 
     @GetMapping("/list")
     String list(Model model) {
@@ -33,6 +38,8 @@ public class ItemController {
 
     @GetMapping("/detail/{id}")
     String itemDetail(@PathVariable Long id, Model model) {
+//        commentRepository.findAllByParentId();
+
         Optional<Item> result = itemRepository.findById(id);
         if (result.isPresent()) {
             model.addAttribute("item", result.get());
@@ -65,16 +72,31 @@ public class ItemController {
         return ResponseEntity.status(200).body("삭제완료");
     }
 
-    @PostMapping("/test1")
-    String test1(@RequestBody Long id) {
-        System.out.println(id);
-        return "redirect:/list";
+    @GetMapping("/list/page/{i}")
+    String getListPage(Model model, @PathVariable Integer i) {
+        Page<Item> result = itemRepository.findPageBy(PageRequest.of(i-1,3));
+        //result.getTotalPages(); 총 페이지 갯수가 몇개인지
+        //result.hasNext(); 다음 페이지가 있는지
+        model.addAttribute("items", result);
+        return "list.html";
     }
 
-//    @GetMapping("/test1")
-//    String test1(@RequestParam String name) {
-//        System.out.println(name);
-//        return "redirect:/list";
-//    }
+    @GetMapping("/presigned-url")
+    @ResponseBody
+    String getURL(@RequestParam String filename) {
+        var result = s3Service.createPresignedUrl("test/" + filename);
+        System.out.println(result);
+
+        return result;
+    }
+
+    @PostMapping("/search")
+    String postSearch(@RequestParam String searchText) {
+//        var result = itemRepository.findAllByTitleContains(searchText);
+        var result = itemRepository.rawQuery1(searchText);
+        System.out.println(result);
+
+        return "list.html";
+    }
 }
 
